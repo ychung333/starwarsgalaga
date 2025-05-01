@@ -4,6 +4,7 @@ Main game logic using the VideoGame base class.
 
 import pygame
 from .scene_title import TitleScene
+from .scene_gameplay import GamePlayScene
 from .scenemanager import SceneManager
 from .player import Player
 from .enemy import Enemy
@@ -37,9 +38,16 @@ class GalagaGame:
                     self.scene_manager.handle_event(event)
 
             self.scene_manager.update(delta_time)
+
+            # Transition to gameplay when title scene ends
+            if self.scene_manager.current_scene() is None:
+                gameplay_scene = GamePlayScene(self.screen)
+                self.scene_manager.add_scene(gameplay_scene)
+
             self.scene_manager.render()
             pygame.display.flip()
 
         pygame.quit()
+
 
 
