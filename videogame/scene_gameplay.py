@@ -13,7 +13,7 @@ from .gameoverscene import GameOverScene
 from .gameclearscene import GameClearScene
 
 class GamePlayScene(Scene):
-    def __init__(self, screen, level=1, score=0, lives=3, last_life_award=0):
+    def __init__(self, screen, level=1, score=0, lives=3, last_life_award=0, hp=100):
         super().__init__(screen, (0, 0, 0))  # Black background
         print(f"Entered GamePlayScene - Level {level}")
 
@@ -41,7 +41,7 @@ class GamePlayScene(Scene):
             speed=5,
             image=player_img
         )
-        self.player.hp = 100
+        self.player.hp = hp  # ✅ Keep HP from previous level
         self.player.max_hp = 100
         self.player.score = score
         self.player.lives = lives
@@ -84,12 +84,12 @@ class GamePlayScene(Scene):
         if hits:
             self.player.gain_score(100 * len(hits))
 
-        # ✅ FIXED: Give only 1 life per 10k threshold per frame
         if self.player.score >= self.last_life_award + 10000:
             self.last_life_award += 10000
             self.player.lives += 1
             print("Extra life awarded! Lives:", self.player.lives)
 
+        # ✅ Carry HP into next level
         if len(self.enemy_group) == 0:
             if self.level < 5:
                 self._next_scene = GamePlayScene(
@@ -97,7 +97,8 @@ class GamePlayScene(Scene):
                     level=self.level + 1,
                     score=self.player.score,
                     lives=self.player.lives,
-                    last_life_award=self.last_life_award
+                    last_life_award=self.last_life_award,
+                    hp=self.player.hp
                 )
             else:
                 self._next_scene = GameClearScene(self._screen, self.player.score)
@@ -111,7 +112,7 @@ class GamePlayScene(Scene):
         if self.respawn_timer:
             if pygame.time.get_ticks() - self.respawn_timer >= 1000:
                 if self.player.lives > 0:
-                    self.player.hp = self.player.max_hp
+                    self.player.hp = self.player.max_hp  # ✅ Restore HP only after respawn
                     self.player.rect.centerx = self._screen.get_width() // 2
                     self.respawn_timer = None
                 else:
@@ -161,4 +162,5 @@ class GamePlayScene(Scene):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             pygame.quit()
             sys.exit()
+
 
