@@ -26,6 +26,9 @@ class GamePlayScene(Scene):
         self.enemy_bullets = pygame.sprite.Group()
 
         self.font = pygame.font.SysFont("arial", 24)
+        self.tip_font = pygame.font.SysFont("arial", 20)  # Font for tip
+        self.tip_start_time = pygame.time.get_ticks()
+        self.tip_duration = 5000  # show for 5 seconds
 
         # Placeholder bullet image
         self.bullet_img = pygame.Surface((5, 10))
@@ -124,10 +127,15 @@ class GamePlayScene(Scene):
         score_surface = self.font.render(f"Score: {self.player.score}", True, (255, 255, 255))
         self._screen.blit(score_surface, (10, 10))
 
+        # Draw instruction tip at bottom of screen
+        if pygame.time.get_ticks() - self.tip_start_time < self.tip_duration:
+            tip_text = self.tip_font.render("A / D to move   |   W to shoot", True, (255, 255, 255))
+            tip_rect = tip_text.get_rect(center=(self._screen.get_width() // 2, self._screen.get_height() - 30))
+            self._screen.blit(tip_text, tip_rect)
+
     def process_event(self, event):
         super().process_event(event)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             pygame.quit()
             sys.exit()
-
 
