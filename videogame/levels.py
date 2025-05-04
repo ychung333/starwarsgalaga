@@ -1,36 +1,33 @@
 """
 Level generator for Galaga-style waves.
 """
-def generate_level(level, enemy_image, screen_width):
+import random
 
+def generate_level(level, enemy_image, screen_width):
     enemies = []
 
-    # Determine total enemies: 20 + 5 * (level - 1)
-    total_enemies = 20 + (level - 1) * 5
+    rows = 3 + (level % 3)       # 3 to 5 rows
+    cols = min(6 + level * 2, 10)  # max 10 columns
 
-    # Set grid size based on enemy count
-    cols = min(10, total_enemies)  # Max 10 columns
-    rows = (total_enemies + cols - 1) // cols  # Round up to fit all enemies
-
-    # Positioning settings
     min_x_margin = 40
-    spacing_x = max((screen_width - 2 * min_x_margin) // cols, 60)  # at least 60px apart
-    spacing_y = 60
+    spacing_x = max((screen_width - 2 * min_x_margin) // cols, 60)
+    spacing_y = 50
 
-    # Create enemy positions
+    entry_types = ["straight", "sine", "zigzag", "spiral", "curve"]
+
     for row in range(rows):
         for col in range(cols):
-            if len(enemies) >= total_enemies:
-                break
             x = min_x_margin + col * spacing_x
-            y = 60 + row * spacing_y
-            enemies.append({
-                'x': x,
-                'y': y,
-                'image': enemy_image,
-                'speed': 2 + 0.2 * level
-            })
+            y = -random.randint(30, 150)  # start off-screen
+
+            enemy_dict = {
+                "x": x,
+                "y": y,
+                "image": enemy_image,
+                "speed": 2 + level * 0.2,
+                "entry_type": random.choice(entry_types)
+            }
+            enemies.append(enemy_dict)
 
     return enemies
-
 

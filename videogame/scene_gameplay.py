@@ -4,6 +4,7 @@ Gameplay scene for the Galaga-style game.
 
 import pygame
 import sys
+import random
 from .scene import Scene
 from .player import Player
 from .enemy import Enemy
@@ -14,9 +15,7 @@ from .gameclearscene import GameClearScene
 
 class GamePlayScene(Scene):
     def __init__(self, screen, level=1, score=0, lives=3, last_life_award=0, hp=100):
-        super().__init__(screen, (0, 0, 0))  # Black background
-        print(f"Entered GamePlayScene - Level {level}")
-
+        super().__init__(screen, (0, 0, 0))
         self.level = level
         self.preserved_score = score
 
@@ -28,7 +27,7 @@ class GamePlayScene(Scene):
         self.font = pygame.font.SysFont("arial", 24)
         self.tip_font = pygame.font.SysFont("arial", 20)
         self.tip_start_time = pygame.time.get_ticks()
-        self.tip_duration = 5000  # show for 5 seconds
+        self.tip_duration = 5000
 
         self.bullet_img = pygame.Surface((5, 10))
         self.bullet_img.fill((255, 255, 255))
@@ -41,13 +40,13 @@ class GamePlayScene(Scene):
             speed=5,
             image=player_img
         )
-        self.player.hp = hp  # ✅ Keep HP from previous level
+        self.player.hp = hp
         self.player.max_hp = 100
         self.player.score = score
         self.player.lives = lives
-        self.hit_flash_time = 0
         self.last_life_award = last_life_award
         self.respawn_timer = None
+        self.hit_flash_time = 0
 
         self.all_sprites.add(self.player)
 
@@ -55,11 +54,23 @@ class GamePlayScene(Scene):
         enemy_img.fill((255, 0, 0))
         enemies = generate_level(level, enemy_img, screen.get_width())
         for e in enemies:
-            enemy = Enemy(e['x'], e['y'], e['image'], e['speed'])
+            # ✅ Add entry_type here
+            enemy = Enemy(e['x'], e['y'], e['image'], e['speed'], e['entry_type'])
             self.enemy_group.add(enemy)
             self.all_sprites.add(enemy)
 
+        self.last_dive_time = pygame.time.get_ticks()
+        self.dive_interval = 10000
+
     def update_scene(self):
+        now = pygame.time.get_ticks()
+
+        if now - self.last_dive_time >= self.dive_interval:
+            grid_enemies = [e for e in self.enemy_group if e.is_alive_and_grid()]
+            if grid_enemies:
+                random.choice(grid_enemies).start_dive()
+                self.last_dive_time = now
+
         if not self.respawn_timer:
             keys = pygame.key.get_pressed()
             self.player.update(
@@ -78,7 +89,12 @@ class GamePlayScene(Scene):
         if not self.respawn_timer and pygame.sprite.spritecollide(self.player, self.enemy_bullets, True):
             self.player.hp -= 25
             self.hit_flash_time = pygame.time.get_ticks()
-            print("Player hit! HP:", self.player.hp)
+
+        for enemy in self.enemy_group:
+            if enemy.state == 'dive' and enemy.rect.colliderect(self.player.rect):
+                self.player.hp -= 50
+                enemy.kill()
+                self.hit_flash_time = pygame.time.get_ticks()
 
         hits = pygame.sprite.groupcollide(self.enemy_group, self.bullet_group, True, True)
         if hits:
@@ -87,9 +103,7 @@ class GamePlayScene(Scene):
         if self.player.score >= self.last_life_award + 10000:
             self.last_life_award += 10000
             self.player.lives += 1
-            print("Extra life awarded! Lives:", self.player.lives)
 
-        # ✅ Carry HP into next level
         if len(self.enemy_group) == 0:
             if self.level < 5:
                 self._next_scene = GamePlayScene(
@@ -106,13 +120,12 @@ class GamePlayScene(Scene):
 
         if self.player.hp <= 0 and self.respawn_timer is None:
             self.player.lives -= 1
-            print("Player died. Lives left:", self.player.lives)
             self.respawn_timer = pygame.time.get_ticks()
 
         if self.respawn_timer:
             if pygame.time.get_ticks() - self.respawn_timer >= 1000:
                 if self.player.lives > 0:
-                    self.player.hp = self.player.max_hp  # ✅ Restore HP only after respawn
+                    self.player.hp = self.player.max_hp
                     self.player.rect.centerx = self._screen.get_width() // 2
                     self.respawn_timer = None
                 else:
@@ -121,7 +134,6 @@ class GamePlayScene(Scene):
 
     def draw(self):
         super().draw()
-
         if pygame.time.get_ticks() - self.hit_flash_time < 150:
             flash_overlay = pygame.Surface(self._screen.get_size())
             flash_overlay.set_alpha(80)
@@ -162,5 +174,4 @@ class GamePlayScene(Scene):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             pygame.quit()
             sys.exit()
-
 
