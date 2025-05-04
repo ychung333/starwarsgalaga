@@ -30,4 +30,3 @@ def generate_level(level, enemy_image, screen_width):
             enemies.append(enemy_dict)
 
     return enemies
-
