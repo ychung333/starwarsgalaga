@@ -54,13 +54,17 @@ class GamePlayScene(Scene):
         enemy_img.fill((255, 0, 0))
         enemies = generate_level(level, enemy_img, screen.get_width())
         for e in enemies:
-            # ✅ Add entry_type here
             enemy = Enemy(e['x'], e['y'], e['image'], e['speed'], e['entry_type'])
             self.enemy_group.add(enemy)
             self.all_sprites.add(enemy)
 
         self.last_dive_time = pygame.time.get_ticks()
         self.dive_interval = 10000
+
+        # Start gameplay music if not already playing
+        if not pygame.mixer.music.get_busy():
+            pygame.mixer.music.load("music/gameplay.wav")
+            pygame.mixer.music.play(-1)
 
     def update_scene(self):
         now = pygame.time.get_ticks()
@@ -115,6 +119,7 @@ class GamePlayScene(Scene):
                     hp=self.player.hp
                 )
             else:
+                pygame.mixer.music.stop()
                 self._next_scene = GameClearScene(self._screen, self.player.score)
             self._is_valid = False
 
@@ -129,6 +134,7 @@ class GamePlayScene(Scene):
                     self.player.rect.centerx = self._screen.get_width() // 2
                     self.respawn_timer = None
                 else:
+                    pygame.mixer.music.stop()
                     self._next_scene = GameOverScene(self._screen, self.player.score)
                     self._is_valid = False
 

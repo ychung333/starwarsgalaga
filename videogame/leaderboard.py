@@ -38,4 +38,3 @@ def add_score(score, name=None):
     scores.append((name, score))
     scores.sort(key=lambda x: x[1], reverse=True)
     save_scores(scores[:MAX_ENTRIES])
-

@@ -1,3 +1,4 @@
+
 """
 Game Over scene for the Galaga-style game.
 """
