@@ -16,9 +16,9 @@ class Player(pygame.sprite.Sprite):
         self.last_shot_time = pygame.time.get_ticks()
 
     def move(self, keys, screen_width):
-        if keys[pygame.K_LEFT] or keys[pygame.K_a] and self.rect.left > 0:
+        if (keys[pygame.K_LEFT] or keys[pygame.K_a]) and self.rect.left > 0:
             self.rect.x -= self.speed
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d] and self.rect.right < screen_width:
+        if (keys[pygame.K_RIGHT] or keys[pygame.K_d]) and self.rect.right < screen_width:
             self.rect.x += self.speed
 
     def shoot(self, bullet_group, bullet_image):
@@ -28,9 +28,17 @@ class Player(pygame.sprite.Sprite):
             bullet_group.add(bullet)
             self.last_shot_time = current_time
 
+            # 🔊 Play player fire sound at half volume
+            try:
+                sound = pygame.mixer.Sound("music/player_fire.wav")
+                sound.set_volume(0.03)
+                sound.play()
+            except pygame.error:
+                print("Could not play player_fire.wav")
+
     def update(self, keys, screen_width, bullet_group, bullet_image):
         self.move(keys, screen_width)
-        if keys[pygame.K_w]:  # Changed from K_SPACE to K_w
+        if keys[pygame.K_w]:  # Fire with W key
             self.shoot(bullet_group, bullet_image)
 
     def lose_life(self):
