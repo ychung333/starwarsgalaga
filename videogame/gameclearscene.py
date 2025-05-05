@@ -14,7 +14,7 @@ class GameClearScene(Scene):
         self._score = score
 
         self.title_font = pygame.font.SysFont("arial", 48)
-        self.text_font = pygame.font.SysFont("arial", 28)  # smaller font
+        self.text_font = pygame.font.SysFont("arial", 28)
 
         self.title_text = self.title_font.render("🎉 Congratulations! 🎉", True, (255, 255, 0))
         self.message_text = self.text_font.render(
@@ -23,6 +23,11 @@ class GameClearScene(Scene):
         self.instruction_text = self.text_font.render(
             "Press ENTER to view leaderboard, ESC to quit", True, (200, 200, 200)
         )
+
+        # 🎵 Play win music
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load("music/win.wav")
+        pygame.mixer.music.play()
 
     def draw(self):
         super().draw()
@@ -37,9 +42,8 @@ class GameClearScene(Scene):
             if event.key == pygame.K_RETURN:
                 if is_high_score(self._score):
                     add_score(self._score)
-                self._is_valid = False
-                from .leaderboardscene import LeaderboardScene
                 self._next_scene = LeaderboardScene(self._screen)
+                self._is_valid = False
             elif event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()

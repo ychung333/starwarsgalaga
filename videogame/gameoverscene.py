@@ -1,4 +1,3 @@
-
 """
 Game Over scene for the Galaga-style game.
 """
@@ -22,6 +21,11 @@ class GameOverScene(Scene):
         if is_high_score(self.score):
             add_score(self.score)
 
+        # 🎵 Play game over music
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load("music/lose.wav")
+        pygame.mixer.music.play()
+
     def draw(self):
         super().draw()
         game_over_rect = self.game_over_text.get_rect(center=(self._screen.get_width() // 2, self._screen.get_height() // 3))
@@ -38,4 +42,5 @@ class GameOverScene(Scene):
             elif event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
+
 
