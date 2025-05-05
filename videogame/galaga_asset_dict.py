@@ -1,10 +1,9 @@
 galaga_asset_dict = {
-    "title_music": "",
-    "game_music": "",
-    "shoot_sound": "",
-    "explode_sound": "",
-    "player_image": "",
-    "enemy_image": "",
-    "background": "",
+    "title": "title.wav",
+    "gameplay": "gameplay.wav",
+    "win": "win.wav",
+    "lose": "lose.wav",
+    "enemy_fire": "enemy_fire.wav",
+    "player_fire": "player_fire.wav",
 }
 

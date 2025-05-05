@@ -5,12 +5,13 @@ Title scene for the Galaga-style game.
 import pygame
 import sys
 from .scene import Scene
+from . import assets
 
 class TitleScene(Scene):
     """Scene that displays the game title and instructions."""
 
     def __init__(self, screen):
-        super().__init__(screen, (0, 0, 0), soundtrack="music/title.wav")
+        super().__init__(screen, (0, 0, 0), soundtrack=assets.get("title"))
         self.font = pygame.font.SysFont("arial", 48)
         self.small_font = pygame.font.SysFont("arial", 24)
         self.title_text = self.font.render("Galaga Clone", True, (255, 255, 255))

@@ -61,9 +61,9 @@ class GamePlayScene(Scene):
         self.last_dive_time = pygame.time.get_ticks()
         self.dive_interval = 10000
 
-        # Start gameplay music if not already playing
+        # ✅ Start gameplay music if not already playing
         if not pygame.mixer.music.get_busy():
-            pygame.mixer.music.load("music/gameplay.wav")
+            pygame.mixer.music.load(assets.get("gameplay"))
             pygame.mixer.music.play(-1)
 
     def update_scene(self):
@@ -180,4 +180,5 @@ class GamePlayScene(Scene):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             pygame.quit()
             sys.exit()
+
 

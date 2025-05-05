@@ -4,6 +4,7 @@ Enemy class for the Galaga-style game.
 
 import pygame
 import random
+from . import assets
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, image, speed=2, entry_type=None):
@@ -43,7 +44,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x += int(3 * dx / dist)
         self.rect.y += int(3 * dy / dist)
 
-    def _maybe_shoot(self, bullet_group, bullet_image):  # ✅ Now correctly aligned
+    def _maybe_shoot(self, bullet_group, bullet_image):
         now = pygame.time.get_ticks()
         if now - self.last_shot_time > self.shoot_delay:
             bullet = EnemyBullet(self.rect.centerx, self.rect.bottom, bullet_image)
@@ -51,9 +52,9 @@ class Enemy(pygame.sprite.Sprite):
             self.last_shot_time = now
             self.shoot_delay = random.randint(1500, 3000)
 
-            # 🔊 Play enemy fire sound at half volume
+            # 🔊 Play enemy fire sound at low volume
             try:
-                sound = pygame.mixer.Sound("music/enemy_fire.wav")
+                sound = pygame.mixer.Sound(assets.get("enemy_fire"))
                 sound.set_volume(0.03)
                 sound.play()
             except pygame.error:
@@ -78,5 +79,6 @@ class EnemyBullet(pygame.sprite.Sprite):
         self.rect.y += self.speed
         if self.rect.top > 600:
             self.kill()
+
 
 

@@ -12,9 +12,13 @@ class GameOverScene(Scene):
     def __init__(self, screen, score):
         super().__init__(screen, (0, 0, 0))
         self.font = pygame.font.SysFont("arial", 48)
+        self.text_font = pygame.font.SysFont("arial", 28)
         self.small_font = pygame.font.SysFont("arial", 24)
+
         self.game_over_text = self.font.render("Game Over", True, (255, 0, 0))
-        self.instruction_text = self.small_font.render("Press ENTER to view leaderboard or ESC to quit", True, (255, 255, 255))
+        self.message_text = self.text_font.render("Better luck next time!", True, (255, 255, 255))
+        self.instruction_text = self.small_font.render("Press ENTER to view leaderboard or ESC to quit", True, (200, 200, 200))
+
         self.score = score
 
         # Save to leaderboard if qualified
@@ -28,9 +32,17 @@ class GameOverScene(Scene):
 
     def draw(self):
         super().draw()
-        game_over_rect = self.game_over_text.get_rect(center=(self._screen.get_width() // 2, self._screen.get_height() // 3))
-        instruction_rect = self.instruction_text.get_rect(center=(self._screen.get_width() // 2, self._screen.get_height() // 2))
+        w, h = self._screen.get_width(), self._screen.get_height()
+
+        spacing = 50
+        center_y = h // 2
+
+        game_over_rect = self.game_over_text.get_rect(center=(w // 2, center_y - spacing))
+        message_rect = self.message_text.get_rect(center=(w // 2, center_y))
+        instruction_rect = self.instruction_text.get_rect(center=(w // 2, center_y + spacing))
+
         self._screen.blit(self.game_over_text, game_over_rect)
+        self._screen.blit(self.message_text, message_rect)
         self._screen.blit(self.instruction_text, instruction_rect)
 
     def process_event(self, event):
@@ -42,5 +54,4 @@ class GameOverScene(Scene):
             elif event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
-
 

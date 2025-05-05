@@ -5,6 +5,7 @@ Game Clear scene for when the player completes the final level.
 import pygame
 import sys
 from .scene import Scene
+from . import assets
 from .leaderboardscene import LeaderboardScene
 from .leaderboard import add_score, is_high_score
 
@@ -24,17 +25,26 @@ class GameClearScene(Scene):
             "Press ENTER to view leaderboard, ESC to quit", True, (200, 200, 200)
         )
 
-        # 🎵 Play win music
+        # 🎵 Play win music using asset system
         pygame.mixer.music.stop()
-        pygame.mixer.music.load("music/win.wav")
+        pygame.mixer.music.load(assets.get("win"))
         pygame.mixer.music.play()
 
     def draw(self):
         super().draw()
         w, h = self._screen.get_width(), self._screen.get_height()
-        self._screen.blit(self.title_text, self.title_text.get_rect(center=(w // 2, h // 3)))
-        self._screen.blit(self.message_text, self.message_text.get_rect(center=(w // 2, h // 2)))
-        self._screen.blit(self.instruction_text, self.instruction_text.get_rect(center=(w // 2, (2 * h) // 3)))
+
+        # Calculate vertical stacking
+        spacing = 50
+        center_y = h // 2
+
+        title_rect = self.title_text.get_rect(center=(w // 2, center_y - spacing))
+        message_rect = self.message_text.get_rect(center=(w // 2, center_y))
+        instruction_rect = self.instruction_text.get_rect(center=(w // 2, center_y + spacing))
+
+        self._screen.blit(self.title_text, title_rect)
+        self._screen.blit(self.message_text, message_rect)
+        self._screen.blit(self.instruction_text, instruction_rect)
 
     def process_event(self, event):
         super().process_event(event)

@@ -3,6 +3,7 @@ Player class for the Galaga-style game.
 """
 
 import pygame
+from . import assets
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, speed, image):
@@ -28,9 +29,9 @@ class Player(pygame.sprite.Sprite):
             bullet_group.add(bullet)
             self.last_shot_time = current_time
 
-            # 🔊 Play player fire sound at half volume
+            # 🔊 Play player fire sound at low volume
             try:
-                sound = pygame.mixer.Sound("music/player_fire.wav")
+                sound = pygame.mixer.Sound(assets.get("player_fire"))
                 sound.set_volume(0.03)
                 sound.play()
             except pygame.error:
@@ -46,7 +47,6 @@ class Player(pygame.sprite.Sprite):
 
     def gain_score(self, points):
         self.score += points
-
         if self.score // 10000 > (self.score - points) // 10000:
             self.lives += 1
 
