@@ -3,6 +3,7 @@ Title scene for the Galaga-style game.
 """
 
 import pygame
+import sys
 from .scene import Scene
 
 class TitleScene(Scene):
@@ -13,7 +14,9 @@ class TitleScene(Scene):
         self.font = pygame.font.SysFont("arial", 48)
         self.small_font = pygame.font.SysFont("arial", 24)
         self.title_text = self.font.render("Galaga Clone", True, (255, 255, 255))
-        self.instruction_text = self.small_font.render("Press any key to start", True, (255, 255, 255))
+        self.instruction_text = self.small_font.render(
+            "Press any key to start or press ESC to quit", True, (255, 255, 255)
+        )
 
     def draw(self):
         super().draw()
@@ -25,5 +28,9 @@ class TitleScene(Scene):
     def process_event(self, event):
         super().process_event(event)
         if event.type == pygame.KEYDOWN:
-            self._is_valid = False
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
+                sys.exit()
+            else:
+                self._is_valid = False
 
