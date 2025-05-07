@@ -19,6 +19,10 @@ class GamePlayScene(Scene):
         self.level = level
         self.preserved_score = score
 
+        # Load and scale background to screen size
+        bg_image = pygame.image.load(assets.get("background1")).convert()
+        self.background = pygame.transform.scale(bg_image, screen.get_size())
+
         self.all_sprites = pygame.sprite.Group()
         self.enemy_group = pygame.sprite.Group()
         self.bullet_group = pygame.sprite.Group()
@@ -32,14 +36,16 @@ class GamePlayScene(Scene):
         self.bullet_img = pygame.Surface((5, 10))
         self.bullet_img.fill((255, 255, 255))
 
-        player_img = pygame.Surface((40, 30))
-        player_img.fill((0, 255, 0))
+        player_img = pygame.image.load(assets.get("player")).convert_alpha()
+        player_img = pygame.transform.scale(player_img, (50, 40))
+
         self.player = Player(
             x=screen.get_width() // 2,
             y=screen.get_height() - 40,
             speed=5,
             image=player_img
         )
+        self.player.rect.inflate_ip(-8, -4)
         self.player.hp = hp
         self.player.max_hp = 100
         self.player.score = score
@@ -50,11 +56,11 @@ class GamePlayScene(Scene):
 
         self.all_sprites.add(self.player)
 
-        enemy_img = pygame.Surface((30, 30))
-        enemy_img.fill((255, 0, 0))
+        enemy_img = pygame.image.load(assets.get("enemy")).convert_alpha()
+        enemy_img = pygame.transform.scale(enemy_img, (40, 35))
+
         enemies = generate_level(level, enemy_img, screen.get_width())
         for i, e in enumerate(enemies):
-            # Spawn off-screen to avoid popping at grid
             spawn_x = 0
             spawn_y = -100
             enemy = Enemy(
@@ -66,6 +72,7 @@ class GamePlayScene(Scene):
                 target_x=e.get("target_x", e["x"]),
                 target_y=e.get("target_y", e["y"])
             )
+            enemy.rect.inflate_ip(-6, -6)
             self.enemy_group.add(enemy)
             self.all_sprites.add(enemy)
 
@@ -150,6 +157,8 @@ class GamePlayScene(Scene):
 
     def draw(self):
         super().draw()
+        self._screen.blit(self.background, (0, 0))  # Draw background
+
         if pygame.time.get_ticks() - self.hit_flash_time < 150:
             flash_overlay = pygame.Surface(self._screen.get_size())
             flash_overlay.set_alpha(80)
