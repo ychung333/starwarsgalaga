@@ -59,9 +59,8 @@ class GamePlayScene(Scene):
             self.all_sprites.add(enemy)
 
         self.last_dive_time = pygame.time.get_ticks()
-        self.dive_interval = 10000
+        self.dive_interval = 10000  # 10 seconds
 
-        # ✅ Start gameplay music if not already playing
         if not pygame.mixer.music.get_busy():
             pygame.mixer.music.load(assets.get("gameplay"))
             pygame.mixer.music.play(-1)
@@ -69,6 +68,7 @@ class GamePlayScene(Scene):
     def update_scene(self):
         now = pygame.time.get_ticks()
 
+        # 🔁 Trigger a random enemy dive every 10 seconds
         if now - self.last_dive_time >= self.dive_interval:
             grid_enemies = [e for e in self.enemy_group if e.is_alive_and_grid()]
             if grid_enemies:
@@ -180,5 +180,4 @@ class GamePlayScene(Scene):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             pygame.quit()
             sys.exit()
-
 

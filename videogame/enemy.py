@@ -12,7 +12,7 @@ class Enemy(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = speed
-        self.state = 'parade'  # 'grid', 'dive', etc.
+        self.state = 'parade'
         self.direction = 1
         self.entry_type = entry_type
         self.shoot_delay = random.randint(1500, 3000)
@@ -24,7 +24,7 @@ class Enemy(pygame.sprite.Sprite):
         elif self.state == 'grid':
             self._oscillate()
         elif self.state == 'dive':
-            self._dive(player_rect)
+            self._dive()
         self._maybe_shoot(bullet_group, bullet_image)
 
     def _parade(self):
@@ -37,12 +37,12 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.left <= 0 or self.rect.right >= 800:
             self.direction *= -1
 
-    def _dive(self, player_rect):
-        dx = player_rect.centerx - self.rect.centerx
-        dy = player_rect.centery - self.rect.centery
-        dist = max(1, (dx ** 2 + dy ** 2) ** 0.5)
-        self.rect.x += int(3 * dx / dist)
-        self.rect.y += int(3 * dy / dist)
+    def _dive(self):
+        self.rect.y += 6  # Dive straight down
+
+        # Remove if goes off screen
+        if self.rect.top > 600:
+            self.kill()
 
     def _maybe_shoot(self, bullet_group, bullet_image):
         now = pygame.time.get_ticks()
@@ -52,7 +52,6 @@ class Enemy(pygame.sprite.Sprite):
             self.last_shot_time = now
             self.shoot_delay = random.randint(1500, 3000)
 
-            # 🔊 Play enemy fire sound at low volume
             try:
                 sound = pygame.mixer.Sound(assets.get("enemy_fire"))
                 sound.set_volume(0.03)
@@ -79,6 +78,4 @@ class EnemyBullet(pygame.sprite.Sprite):
         self.rect.y += self.speed
         if self.rect.top > 600:
             self.kill()
-
-
 
