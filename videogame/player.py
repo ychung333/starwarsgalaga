@@ -4,17 +4,21 @@ Player class for the Galaga-style game.
 
 import pygame
 from . import assets
+from .explosion_effect import Explosion  
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, speed, image):
         super().__init__()
         self.image = image
+        self.original_image = image.copy()
         self.rect = self.image.get_rect(midbottom=(x, y))
         self.speed = speed
         self.lives = 3
         self.score = 0
         self.shoot_cooldown = 300  # milliseconds
         self.last_shot_time = pygame.time.get_ticks()
+
+        self.exploded = False  # Track if player explosion triggered
 
     def move(self, keys, screen_width):
         if (keys[pygame.K_LEFT] or keys[pygame.K_a]) and self.rect.left > 0:
@@ -29,7 +33,6 @@ class Player(pygame.sprite.Sprite):
             bullet_group.add(bullet)
             self.last_shot_time = current_time
 
-            # 🔊 Play player fire sound at low volume
             try:
                 sound = pygame.mixer.Sound(assets.get("player_fire"))
                 sound.set_volume(0.03)
@@ -50,6 +53,13 @@ class Player(pygame.sprite.Sprite):
         if self.score // 10000 > (self.score - points) // 10000:
             self.lives += 1
 
+    def explode(self, group):
+        if not self.exploded:
+            explosion = Explosion(self.rect.centerx, self.rect.centery, self.original_image)
+            group.add(explosion)
+            self.exploded = True
+            self.kill()
+
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, image):
@@ -62,5 +72,4 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y += self.speed
         if self.rect.bottom < 0:
             self.kill()
-
 

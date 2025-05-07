@@ -7,7 +7,7 @@ import sys
 import random
 from .scene import Scene
 from .player import Player
-from .enemy import Enemy
+from .enemy import Enemy, DeathAnimation
 from .levels import generate_level
 from . import assets
 from .gameoverscene import GameOverScene
@@ -27,6 +27,7 @@ class GamePlayScene(Scene):
         self.enemy_group = pygame.sprite.Group()
         self.bullet_group = pygame.sprite.Group()
         self.enemy_bullets = pygame.sprite.Group()
+        self.animations = pygame.sprite.Group()
 
         self.font = pygame.font.SysFont("arial", 24)
         self.tip_font = pygame.font.SysFont("arial", 20)
@@ -106,6 +107,7 @@ class GamePlayScene(Scene):
 
         self.bullet_group.update()
         self.enemy_bullets.update()
+        self.animations.update()
 
         if not self.respawn_timer and pygame.sprite.spritecollide(self.player, self.enemy_bullets, True):
             self.player.hp -= 25
@@ -114,10 +116,13 @@ class GamePlayScene(Scene):
         for enemy in self.enemy_group:
             if enemy.state == 'dive' and enemy.rect.colliderect(self.player.rect):
                 self.player.hp -= 50
+                self.animations.add(DeathAnimation(enemy.rect.centerx, enemy.rect.centery, enemy.image))
                 enemy.kill()
                 self.hit_flash_time = pygame.time.get_ticks()
 
         hits = pygame.sprite.groupcollide(self.enemy_group, self.bullet_group, True, True)
+        for enemy in hits:
+            self.animations.add(DeathAnimation(enemy.rect.centerx, enemy.rect.centery, enemy.image))
         if hits:
             self.player.gain_score(100 * len(hits))
 
@@ -141,12 +146,18 @@ class GamePlayScene(Scene):
             self._is_valid = False
 
         if self.player.hp <= 0 and self.respawn_timer is None:
+            self.animations.add(DeathAnimation(self.player.rect.centerx, self.player.rect.centery, self.player.image))
             self.player.lives -= 1
             self.respawn_timer = pygame.time.get_ticks()
 
         if self.respawn_timer:
             if pygame.time.get_ticks() - self.respawn_timer >= 1000:
                 if self.player.lives > 0:
+                    original_img = pygame.image.load(assets.get("player")).convert_alpha()
+                    self.player.image = pygame.transform.scale(original_img, (50, 40))
+                    self.player.rect = self.player.image.get_rect(midbottom=self.player.rect.midbottom)
+                    self.player.rect.inflate_ip(-8, -4)
+
                     self.player.hp = self.player.max_hp
                     self.player.rect.centerx = self._screen.get_width() // 2
                     self.respawn_timer = None
@@ -168,6 +179,7 @@ class GamePlayScene(Scene):
         self.all_sprites.draw(self._screen)
         self.bullet_group.draw(self._screen)
         self.enemy_bullets.draw(self._screen)
+        self.animations.draw(self._screen)
 
         bar_width = 100
         bar_height = 10

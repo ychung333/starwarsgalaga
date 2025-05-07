@@ -6,11 +6,14 @@ import pygame
 import random
 from . import assets
 from .enemy_paths import get_path
+from .explosion_effect import Explosion  # Add this line to use reusable explosion effect
+
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, image, speed=2, entry_type=None, entry_id=0, target_x=None, target_y=None):
         super().__init__()
         self.image = image
+        self.original_image = image.copy()
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = speed
         self.state = 'parade'
@@ -27,6 +30,7 @@ class Enemy(pygame.sprite.Sprite):
         self.final_position = (x, y)
 
         self.grid_entry_time = None  # Track when enemy finishes parade
+        self.exploded = False  # Track if explosion has occurred
 
     def update(self, player_rect, bullet_group, bullet_image):
         if self.state == 'parade':
@@ -89,6 +93,13 @@ class Enemy(pygame.sprite.Sprite):
             except pygame.error:
                 print("Could not play dive.wav")
 
+    def explode(self, group):
+        if not self.exploded:
+            explosion = Explosion(self.rect.centerx, self.rect.centery, self.original_image)
+            group.add(explosion)
+            self.exploded = True
+            self.kill()
+
 
 class EnemyBullet(pygame.sprite.Sprite):
     def __init__(self, x, y, image):
@@ -101,4 +112,28 @@ class EnemyBullet(pygame.sprite.Sprite):
         self.rect.y += self.speed
         if self.rect.top > 600:
             self.kill()
+
+class DeathAnimation(pygame.sprite.Sprite):
+    def __init__(self, x, y, base_image):
+        super().__init__()
+        self.original_image = base_image.copy()
+        self.image = base_image.copy()
+        self.rect = self.image.get_rect(center=(x, y))
+        self.scale = 1.0
+        self.alpha = 255
+        self.timer = 0
+
+    def update(self):
+        self.timer += 1
+        self.scale *= 0.9  # Shrink gradually
+        self.alpha -= 15   # Fade gradually
+
+        if self.alpha <= 0:
+            self.kill()
+            return
+
+        scaled_image = pygame.transform.rotozoom(self.original_image, 0, self.scale)
+        scaled_image.set_alpha(max(self.alpha, 0))
+        self.image = scaled_image
+        self.rect = self.image.get_rect(center=self.rect.center)
 
