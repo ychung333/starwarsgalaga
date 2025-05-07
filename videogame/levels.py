@@ -6,27 +6,35 @@ import random
 def generate_level(level, enemy_image, screen_width):
     enemies = []
 
-    rows = 3 + (level % 3)       # 3 to 5 rows
-    cols = min(6 + level * 2, 10)  # max 10 columns
+    enemy_width = enemy_image.get_width()
+    enemy_height = enemy_image.get_height()
 
-    min_x_margin = 40
-    spacing_x = max((screen_width - 2 * min_x_margin) // cols, 60)
-    spacing_y = 50
+    enemies_per_level = 20 + (level - 1) * 5
+    enemies_per_row = 10
+    rows = (enemies_per_level + enemies_per_row - 1) // enemies_per_row  # ceiling division
 
-    entry_types = ["straight", "sine", "zigzag", "spiral", "curve"]
+    spacing_x = enemy_width  # 1 block distance horizontally
+    spacing_y = enemy_height + 20  # vertical spacing
 
-    for row in range(rows):
-        for col in range(cols):
-            x = min_x_margin + col * spacing_x
-            y = -random.randint(30, 150)  # start off-screen
+    total_row_width = enemies_per_row * enemy_width + (enemies_per_row - 1) * spacing_x
+    start_x = (screen_width - total_row_width) // 2
 
-            enemy_dict = {
-                "x": x,
-                "y": y,
-                "image": enemy_image,
-                "speed": 2 + level * 0.2,
-                "entry_type": random.choice(entry_types)
-            }
-            enemies.append(enemy_dict)
+    for i in range(enemies_per_level):
+        row = i // enemies_per_row
+        col = i % enemies_per_row
+
+        x = start_x + col * (enemy_width + spacing_x)
+        y = 100 + row * spacing_y
+
+        enemy_dict = {
+            "x": x,
+            "y": y,
+            "image": enemy_image,
+            "speed": 2 + level * 0.2,
+            "entry_type": "straight"
+        }
+        enemies.append(enemy_dict)
 
     return enemies
+
+
