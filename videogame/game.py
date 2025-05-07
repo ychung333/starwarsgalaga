@@ -14,7 +14,15 @@ from . import assets
 
 class GalagaGame:
     def __init__(self):
+        # Initialize pygame and mixer
         pygame.init()
+        pygame.mixer.init()
+
+        # 🎵 Configure audio channels
+        pygame.mixer.set_num_channels(16)  # More simultaneous sounds
+        pygame.mixer.set_reserved(1)       # Reserve channel 0 for dive sound
+
+        # Set up display
         self.window_width = 800
         self.window_height = 600
         self.screen = pygame.display.set_mode((self.window_width, self.window_height))
@@ -22,9 +30,10 @@ class GalagaGame:
         self.clock = pygame.time.Clock()
         self.running = True
 
+        # Scene management
         self.scene_manager = SceneManager(self.screen)
 
-        # Add title scene
+        # Start with title scene
         title_scene = TitleScene(self.screen)
         self.scene_manager.add_scene(title_scene)
 
@@ -39,7 +48,7 @@ class GalagaGame:
 
             self.scene_manager.update(delta_time)
 
-            # Transition to gameplay when title scene ends
+            # Start gameplay if no scene is active
             if self.scene_manager.current_scene() is None:
                 gameplay_scene = GamePlayScene(self.screen)
                 self.scene_manager.add_scene(gameplay_scene)

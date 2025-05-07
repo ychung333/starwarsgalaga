@@ -38,9 +38,7 @@ class Enemy(pygame.sprite.Sprite):
             self.direction *= -1
 
     def _dive(self):
-        self.rect.y += 6  # Dive straight down
-
-        # Remove if goes off screen
+        self.rect.y += 6
         if self.rect.top > 600:
             self.kill()
 
@@ -65,6 +63,12 @@ class Enemy(pygame.sprite.Sprite):
     def start_dive(self):
         if self.state == 'grid':
             self.state = 'dive'
+            try:
+                dive_sound = pygame.mixer.Sound(assets.get("dive"))
+                dive_sound.set_volume(0.3)
+                pygame.mixer.Channel(0).play(dive_sound)  # Use reserved channel 0
+            except pygame.error:
+                print("Could not play dive.wav")
 
 
 class EnemyBullet(pygame.sprite.Sprite):

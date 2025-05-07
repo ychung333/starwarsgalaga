@@ -68,7 +68,7 @@ class GamePlayScene(Scene):
     def update_scene(self):
         now = pygame.time.get_ticks()
 
-        # 🔁 Trigger a random enemy dive every 10 seconds
+        # Trigger a random enemy dive every 10 seconds
         if now - self.last_dive_time >= self.dive_interval:
             grid_enemies = [e for e in self.enemy_group if e.is_alive_and_grid()]
             if grid_enemies:

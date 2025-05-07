@@ -5,5 +5,6 @@ galaga_asset_dict = {
     "lose": "lose.wav",
     "enemy_fire": "enemy_fire.wav",
     "player_fire": "player_fire.wav",
+    "dive": "dive.wav",  
 }
 
