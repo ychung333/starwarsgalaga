@@ -14,7 +14,7 @@ class TitleScene(Scene):
         super().__init__(screen, (0, 0, 0), soundtrack=assets.get("title"))
         self.font = pygame.font.SysFont("arial", 48)
         self.small_font = pygame.font.SysFont("arial", 24)
-        self.title_text = self.font.render("Galaga Clone", True, (255, 255, 255))
+        self.title_text = self.font.render("Star Wars: Ace Pilot of Clones", True, (255, 255, 255))
         self.instruction_text = self.small_font.render(
             "Press any key to start or press ESC to quit", True, (255, 255, 255)
         )
