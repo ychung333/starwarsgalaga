@@ -17,11 +17,18 @@ def zigzag_path(index, frame):
     return x, y
 
 def spiral_path(index, frame):
-    base_angle = index * 15
+    base_angle = index * 20
     angle = 0.1 * frame + math.radians(base_angle)
-    radius = 50 + frame * 0.5
-    x = 400 + radius * math.cos(angle)
-    y = 100 + radius * math.sin(angle)
+
+    # Radius expands but stays safe
+    radius = min(80 + index * 5 + frame * 0.3, 200)
+
+    # Centered lower to stay on screen
+    center_x = 400
+    center_y = 250
+
+    x = center_x + radius * math.cos(angle)
+    y = center_y + radius * math.sin(angle)
     return x, y
 
 def bounce_path(index, frame):

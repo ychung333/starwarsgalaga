@@ -26,6 +26,8 @@ class Enemy(pygame.sprite.Sprite):
         self.entry_duration = 120
         self.final_position = (x, y)
 
+        self.grid_entry_time = None  # Track when enemy finishes parade
+
     def update(self, player_rect, bullet_group, bullet_image):
         if self.state == 'parade':
             self._parade()
@@ -42,6 +44,7 @@ class Enemy(pygame.sprite.Sprite):
         self.path_index += 1
         if self.path_index >= self.entry_duration:
             self.state = 'grid'
+            self.grid_entry_time = pygame.time.get_ticks()
 
     def _oscillate(self):
         self.rect.x += self.speed * self.direction
@@ -55,6 +58,11 @@ class Enemy(pygame.sprite.Sprite):
 
     def _maybe_shoot(self, bullet_group, bullet_image):
         now = pygame.time.get_ticks()
+
+        # Prevent shooting if not in grid or if grid entry was too recent
+        if self.state != 'grid' or self.grid_entry_time is None or now - self.grid_entry_time < 1000:
+            return
+
         if now - self.last_shot_time > self.shoot_delay:
             bullet = EnemyBullet(self.rect.centerx, self.rect.bottom, bullet_image)
             bullet_group.add(bullet)
