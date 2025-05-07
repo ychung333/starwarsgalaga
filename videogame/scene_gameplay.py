@@ -53,13 +53,24 @@ class GamePlayScene(Scene):
         enemy_img = pygame.Surface((30, 30))
         enemy_img.fill((255, 0, 0))
         enemies = generate_level(level, enemy_img, screen.get_width())
-        for e in enemies:
-            enemy = Enemy(e['x'], e['y'], e['image'], e['speed'], e['entry_type'])
+        for i, e in enumerate(enemies):
+            # Spawn off-screen to avoid popping at grid
+            spawn_x = 0
+            spawn_y = -100
+            enemy = Enemy(
+                spawn_x, spawn_y,
+                e['image'],
+                e['speed'],
+                e['entry_type'],
+                entry_id=i,
+                target_x=e.get("target_x", e["x"]),
+                target_y=e.get("target_y", e["y"])
+            )
             self.enemy_group.add(enemy)
             self.all_sprites.add(enemy)
 
         self.last_dive_time = pygame.time.get_ticks()
-        self.dive_interval = 10000  # 10 seconds
+        self.dive_interval = 10000
 
         if not pygame.mixer.music.get_busy():
             pygame.mixer.music.load(assets.get("gameplay"))
@@ -68,7 +79,6 @@ class GamePlayScene(Scene):
     def update_scene(self):
         now = pygame.time.get_ticks()
 
-        # Trigger a random enemy dive every 10 seconds
         if now - self.last_dive_time >= self.dive_interval:
             grid_enemies = [e for e in self.enemy_group if e.is_alive_and_grid()]
             if grid_enemies:

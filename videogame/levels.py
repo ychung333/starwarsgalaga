@@ -1,6 +1,7 @@
 """
 Level generator for Galaga-style waves.
 """
+
 import random
 
 def generate_level(level, enemy_image, screen_width):
@@ -10,29 +11,55 @@ def generate_level(level, enemy_image, screen_width):
     enemy_height = enemy_image.get_height()
 
     enemies_per_level = 20 + (level - 1) * 5
-    enemies_per_row = 10
-    rows = (enemies_per_level + enemies_per_row - 1) // enemies_per_row  # ceiling division
 
-    spacing_x = enemy_width  # 1 block distance horizontally
-    spacing_y = enemy_height + 20  # vertical spacing
+    # Fixed rows and entry_type for each level
+    if level == 1:
+        rows = 2
+        entry_type = "to_grid"
+    elif level == 2:
+        rows = 3
+        entry_type = "to_grid"
+    elif level == 3:
+        rows = 3
+        entry_type = "spiral"
+    elif level == 4:
+        rows = 4
+        entry_type = "to_grid"
+    elif level == 5:
+        rows = 4
+        entry_type = "rise"
+    else:
+        rows = (enemies_per_level + 9) // 10
+        entry_type = "sine"
 
-    total_row_width = enemies_per_row * enemy_width + (enemies_per_row - 1) * spacing_x
-    start_x = (screen_width - total_row_width) // 2
+    cols = (enemies_per_level + rows - 1) // rows  # Ceiling division
+
+    spacing_x = enemy_width + 20
+    spacing_y = enemy_height + 20
+
+    total_grid_width = cols * enemy_width + (cols - 1) * 20
+    start_x = (screen_width - total_grid_width) // 2
+    top_margin = 100
 
     for i in range(enemies_per_level):
-        row = i // enemies_per_row
-        col = i % enemies_per_row
+        row = i // cols
+        col = i % cols
 
-        x = start_x + col * (enemy_width + spacing_x)
-        y = 100 + row * spacing_y
+        x = start_x + col * spacing_x
+        y = top_margin + row * spacing_y
 
         enemy_dict = {
             "x": x,
             "y": y,
             "image": enemy_image,
             "speed": 2 + level * 0.2,
-            "entry_type": "straight"
+            "entry_type": entry_type
         }
+
+        if entry_type in ["to_grid", "rise"]:
+            enemy_dict["target_x"] = x
+            enemy_dict["target_y"] = y
+
         enemies.append(enemy_dict)
 
     return enemies

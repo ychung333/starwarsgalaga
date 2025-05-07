@@ -5,9 +5,10 @@ Enemy class for the Galaga-style game.
 import pygame
 import random
 from . import assets
+from .enemy_paths import get_path
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y, image, speed=2, entry_type=None):
+    def __init__(self, x, y, image, speed=2, entry_type=None, entry_id=0, target_x=None, target_y=None):
         super().__init__()
         self.image = image
         self.rect = self.image.get_rect(topleft=(x, y))
@@ -15,8 +16,15 @@ class Enemy(pygame.sprite.Sprite):
         self.state = 'parade'
         self.direction = 1
         self.entry_type = entry_type
+        self.entry_id = entry_id
+        self.target_x = target_x
+        self.target_y = target_y
         self.shoot_delay = random.randint(1500, 3000)
         self.last_shot_time = pygame.time.get_ticks()
+
+        self.path_index = 0
+        self.entry_duration = 120
+        self.final_position = (x, y)
 
     def update(self, player_rect, bullet_group, bullet_image):
         if self.state == 'parade':
@@ -25,11 +33,14 @@ class Enemy(pygame.sprite.Sprite):
             self._oscillate()
         elif self.state == 'dive':
             self._dive()
+
         self._maybe_shoot(bullet_group, bullet_image)
 
     def _parade(self):
-        self.rect.y += self.speed
-        if self.rect.y >= 100:
+        x, y = get_path(self.entry_type, self.entry_id, self.path_index, self.target_x, self.target_y)
+        self.rect.center = (x, y)
+        self.path_index += 1
+        if self.path_index >= self.entry_duration:
             self.state = 'grid'
 
     def _oscillate(self):
@@ -66,7 +77,7 @@ class Enemy(pygame.sprite.Sprite):
             try:
                 dive_sound = pygame.mixer.Sound(assets.get("dive"))
                 dive_sound.set_volume(0.3)
-                pygame.mixer.Channel(0).play(dive_sound)  # Use reserved channel 0
+                pygame.mixer.Channel(0).play(dive_sound)
             except pygame.error:
                 print("Could not play dive.wav")
 
